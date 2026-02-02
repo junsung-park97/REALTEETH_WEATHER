@@ -88,7 +88,7 @@ function App() {
     const url = new URL('https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst')
     url.searchParams.append('serviceKey', API_KEY)
     url.searchParams.append('pageNo', '1')
-    url.searchParams.append('numOfRows', '100')
+    url.searchParams.append('numOfRows', '300')
     url.searchParams.append('dataType', 'JSON')
     url.searchParams.append('base_date', baseDate)
     url.searchParams.append('base_time', baseTime)
