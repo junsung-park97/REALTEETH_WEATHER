@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "etl:download": "npx tsx scripts/etl/download.ts",
+    "etl:generate": "npx tsx scripts/etl/generateRegions.ts",
+    "etl:validate": "npx tsx scripts/etl/validate.ts",
+    "etl:all": "npm run etl:download && npm run etl:generate && npm run etl:validate"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
