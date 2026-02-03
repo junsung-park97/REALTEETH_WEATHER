@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import { HomePage } from '@/pages/home'
 
 export function AppRouter() {
