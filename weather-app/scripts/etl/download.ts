@@ -3,7 +3,7 @@
  * southkorea-maps 저장소에서 행정구역 경계 데이터를 다운로드합니다.
  */
 
-import { writeFileSync, existsSync } from 'fs'
+import { writeFileSync, existsSync, mkdirSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -45,6 +45,8 @@ const downloadFile = async (url: string, filename: string): Promise<void> => {
 
 const main = async (): Promise<void> => {
   console.log('🚀 Starting GeoJSON download...\n')
+
+  mkdirSync(DATA_DIR, { recursive: true })
 
   const downloads: Array<{ type: GeoJSONType; filename: string }> = [
     { type: 'provinces', filename: 'provinces.json' },
