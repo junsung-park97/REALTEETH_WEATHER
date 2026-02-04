@@ -127,7 +127,16 @@ const processDistrict = (
   const centroid = calculateCentroid(matchResult.feature.geometry)
 
   if (!isValidKoreaCoordinate(centroid.lat, centroid.lon)) {
-    console.warn(`⚠️  좌표 범위 오류: ${parsed.raw} (${centroid.lat}, ${centroid.lon})`)
+    const featureName = matchResult.feature.properties?.name ?? 'unknown'
+    const featureBase = matchResult.feature.properties?.base ?? 'unknown'
+    console.warn(`⚠️  좌표 범위 오류:`)
+    console.warn(`   입력: ${parsed.raw}`)
+    console.warn(`   매칭된 Feature: ${featureName} (base: ${featureBase})`)
+    console.warn(`   매칭 타입: ${matchResult.matchType}`)
+    console.warn(`   좌표: lat=${centroid.lat}, lon=${centroid.lon}`)
+    console.warn(`   유효 범위: lat=33~43, lon=124~132`)
+    console.warn('')
+    return { region: null, matchType: 'none' }
   }
 
   const grid = latLonToGrid(centroid.lat, centroid.lon)
