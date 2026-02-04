@@ -93,25 +93,15 @@ const findMunicipalityFeature = (
 }
 
 /**
- * 읍/면/동 Feature 찾기
+ * base 속성으로 상위 행정구역 매칭하는 헬퍼 함수
  */
-const findSubmunicipalityFeature = (
-  submunicipalities: GeoJSONCollection,
+const findByBaseDisambiguation = (
+  candidates: GeoJSONFeature[],
   level1: string,
-  level2: string,
-  level3: string
+  level2: string
 ): GeoJSONFeature | null => {
-  // 동일 이름의 읍/면/동이 많으므로 상위 행정구역으로 정확히 필터링
-  const candidates = submunicipalities.features.filter((f) => {
-    const name = f.properties.name
-    // 이름 매칭 (숫자가 포함된 경우 처리: "역삼1동" vs "역삼동")
-    return name === level3 || name.replace(/[0-9]/g, '') === level3.replace(/[0-9]/g, '')
-  })
+  const normalizedLevel1 = normalizeProvinceName(level1)
 
-  if (candidates.length === 0) return null
-  if (candidates.length === 1) return candidates[0]
-
-  // base 속성으로 상위 행정구역 매칭
   const match = candidates.find((f) => {
     const base = f.properties.base
     if (!base) return false
@@ -122,12 +112,55 @@ const findSubmunicipalityFeature = (
     const baseLevel2 = baseParts[1] || ''
 
     const normalizedBaseLevel1 = normalizeProvinceName(baseLevel1)
-    const normalizedLevel1 = normalizeProvinceName(level1)
 
     return normalizedBaseLevel1 === normalizedLevel1 && baseLevel2 === level2
   })
 
-  return match || candidates[0]
+  return match ?? null
+}
+
+/**
+ * 읍/면/동 Feature 찾기
+ */
+const findSubmunicipalityFeature = (
+  submunicipalities: GeoJSONCollection,
+  level1: string,
+  level2: string,
+  level3: string
+): GeoJSONFeature | null => {
+  // 1. 먼저 정확히 일치하는 항목 찾기
+  const exactMatches = submunicipalities.features.filter(
+    (f) => f.properties.name === level3
+  )
+
+  if (exactMatches.length === 1) {
+    return exactMatches[0]
+  }
+
+  if (exactMatches.length > 1) {
+    // 정확 매칭이 여러 개면 base로 disambiguation
+    const match = findByBaseDisambiguation(exactMatches, level1, level2)
+    if (match) return match
+    // disambiguation 실패 시 null 반환 (blind fallback 방지)
+    return null
+  }
+
+  // 2. 정확 매칭이 없으면 숫자 제거 후 매칭 시도 (예: "역삼1동" vs "역삼동")
+  const level3Stripped = level3.replace(/[0-9]/g, '')
+  const strippedCandidates = submunicipalities.features.filter((f) => {
+    const name = f.properties.name
+    return name.replace(/[0-9]/g, '') === level3Stripped
+  })
+
+  if (strippedCandidates.length === 0) return null
+  if (strippedCandidates.length === 1) return strippedCandidates[0]
+
+  // 여러 개면 base로 disambiguation
+  const match = findByBaseDisambiguation(strippedCandidates, level1, level2)
+  if (match) return match
+
+  // disambiguation 실패 시 null 반환 (blind fallback 방지)
+  return null
 }
 
 /**
