@@ -95,21 +95,14 @@ const parseFcstData = (items: KmaForecastItem[]): {
       case 'WSD':
         weather.windSpeed = parseFloat(item.fcstValue)
         break
-      case 'TMN':
-        if (item.fcstDate === todayKst) {
-          minTemp = parseFloat(item.fcstValue)
-        }
-        break
-      case 'TMX':
-        if (item.fcstDate === todayKst) {
-          maxTemp = parseFloat(item.fcstValue)
-        }
-        break
     }
   }
 
   const hourly: HourlyForecast[] = []
   const sortedKeys = Array.from(hourlyMap.keys()).sort()
+
+  // 오늘 날짜의 시간별 기온에서 최저/최고 계산
+  const todayTemps: number[] = []
 
   for (const key of sortedKeys.slice(0, 24)) {
     const [date, time] = key.split('-')
@@ -128,7 +121,18 @@ const parseFcstData = (items: KmaForecastItem[]): {
           precipitationProbability: weather.precipitationProbability ?? 0,
         },
       })
+
+      // 오늘 날짜의 기온만 수집
+      if (date === todayKst) {
+        todayTemps.push(weather.temperature)
+      }
     }
+  }
+
+  // 오늘 기온 데이터에서 최저/최고 계산
+  if (todayTemps.length > 0) {
+    minTemp = Math.min(...todayTemps)
+    maxTemp = Math.max(...todayTemps)
   }
 
   return { hourly, minTemp, maxTemp, currentSky }
