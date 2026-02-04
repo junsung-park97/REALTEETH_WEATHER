@@ -13,6 +13,7 @@ import { fileURLToPath } from 'url'
 import { parseDistrict, getDistrictLevel, type ParsedDistrict } from './parser'
 import { matchDistrict, type GeoJSONData } from './matcher'
 import { calculateCentroid, isValidKoreaCoordinate } from './centroid'
+import { latLonToGrid } from '../../src/shared/lib/gridConverter'
 import type { GeoJSONCollection } from './types'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -22,46 +23,6 @@ const __dirname = dirname(__filename)
 const KOREA_DISTRICTS_PATH = join(__dirname, '../../korea_districts.json')
 const DATA_DIR = join(__dirname, '../data')
 const OUTPUT_PATH = join(__dirname, '../../src/shared/data/regions.json')
-
-// 격자좌표 변환 상수 (gridConverter.ts에서 가져옴)
-const RE = 6371.00877
-const GRID = 5.0
-const SLAT1 = 30.0
-const SLAT2 = 60.0
-const OLON = 126.0
-const OLAT = 38.0
-const XO = 43
-const YO = 136
-
-const DEGRAD = Math.PI / 180.0
-const re = RE / GRID
-const slat1 = SLAT1 * DEGRAD
-const slat2 = SLAT2 * DEGRAD
-const olon = OLON * DEGRAD
-const olat = OLAT * DEGRAD
-
-const sn =
-  Math.tan(Math.PI * 0.25 + slat2 * 0.5) / Math.tan(Math.PI * 0.25 + slat1 * 0.5)
-const snLog = Math.log(Math.cos(slat1) / Math.cos(slat2)) / Math.log(sn)
-const sf =
-  (Math.tan(Math.PI * 0.25 + slat1 * 0.5) ** snLog * Math.cos(slat1)) / snLog
-const ro = (re * sf) / Math.tan(Math.PI * 0.25 + olat * 0.5) ** snLog
-
-/**
- * 위경도를 격자좌표로 변환
- */
-const latLonToGrid = (lat: number, lon: number): { nx: number; ny: number } => {
-  const ra = (re * sf) / Math.tan(Math.PI * 0.25 + lat * DEGRAD * 0.5) ** snLog
-  let theta = lon * DEGRAD - olon
-  if (theta > Math.PI) theta -= 2.0 * Math.PI
-  if (theta < -Math.PI) theta += 2.0 * Math.PI
-  theta *= snLog
-
-  const nx = Math.floor(ra * Math.sin(theta) + XO + 0.5)
-  const ny = Math.floor(ro - ra * Math.cos(theta) + YO + 0.5)
-
-  return { nx, ny }
-}
 
 // 출력 타입
 interface RegionOutput {
