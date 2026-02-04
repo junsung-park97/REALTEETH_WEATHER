@@ -65,7 +65,7 @@ export const gridToLatLon = (nx: number, ny: number): LatLon => {
   const yn = ro - ny + YO
   const ra = Math.sqrt(xn * xn + yn * yn)
   const alat =
-    (Math.atan((re * sf) / ra) ** (1.0 / snLog) - Math.PI * 0.25) * 2.0 * RADDEG
+    (2 * Math.atan(((re * sf) / ra) ** (1.0 / snLog)) - Math.PI * 0.5) * RADDEG
 
   let theta = 0.0
   if (Math.abs(xn) <= 0.0) {

@@ -23,6 +23,8 @@ const GEOJSON_SOURCES = {
 
 type GeoJSONType = keyof typeof GEOJSON_SOURCES
 
+const TIMEOUT_MS = 60_000 // 60초
+
 const downloadFile = async (url: string, filename: string): Promise<void> => {
   const filepath = join(DATA_DIR, filename)
 
@@ -33,14 +35,26 @@ const downloadFile = async (url: string, filename: string): Promise<void> => {
 
   console.log(`📥 Downloading ${filename}...`)
 
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw new Error(`Failed to download ${url}: ${response.status} ${response.statusText}`)
-  }
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
-  const data = await response.text()
-  writeFileSync(filepath, data)
-  console.log(`✅ Saved ${filename}`)
+  try {
+    const response = await fetch(url, { signal: controller.signal })
+    if (!response.ok) {
+      throw new Error(`Failed to download ${url}: ${response.status} ${response.statusText}`)
+    }
+
+    const data = await response.text()
+    writeFileSync(filepath, data)
+    console.log(`✅ Saved ${filename}`)
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`Timeout: ${filename} download exceeded ${TIMEOUT_MS / 1000}s`)
+    }
+    throw error
+  } finally {
+    clearTimeout(timeout)
+  }
 }
 
 const main = async (): Promise<void> => {
