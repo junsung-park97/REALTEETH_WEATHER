@@ -60,6 +60,11 @@ const parseFcstData = (items: KmaForecastItem[]): {
   const now = new Date()
   const currentHour = `${String(now.getHours()).padStart(2, '0')}00`
 
+  // KST 기준 오늘 날짜 (YYYYMMDD 형식)
+  const kstOffset = 9 * 60 * 60 * 1000
+  const kstNow = new Date(now.getTime() + kstOffset)
+  const todayKst = kstNow.toISOString().slice(0, 10).replace(/-/g, '')
+
   for (const item of items) {
     const key = `${item.fcstDate}-${item.fcstTime}`
 
@@ -92,10 +97,14 @@ const parseFcstData = (items: KmaForecastItem[]): {
         weather.windSpeed = parseFloat(item.fcstValue)
         break
       case 'TMN':
-        minTemp = parseFloat(item.fcstValue)
+        if (item.fcstDate === todayKst) {
+          minTemp = parseFloat(item.fcstValue)
+        }
         break
       case 'TMX':
-        maxTemp = parseFloat(item.fcstValue)
+        if (item.fcstDate === todayKst) {
+          maxTemp = parseFloat(item.fcstValue)
+        }
         break
     }
   }
