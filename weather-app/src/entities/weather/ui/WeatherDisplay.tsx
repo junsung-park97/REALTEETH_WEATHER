@@ -84,7 +84,7 @@ const Temp = ({ value, className }: TempProps) => {
 
   return (
     <span className={cn('font-bold', sizeClasses.temp[size], className)}>
-      {Math.round(value)}°
+      {value.toFixed(1)}°
     </span>
   )
 }
@@ -94,9 +94,9 @@ const MinMax = ({ min, max, className }: MinMaxProps) => {
 
   return (
     <div className={cn('text-muted-foreground', sizeClasses.text[size], className)}>
-      <span className="text-blue-500">{Math.round(min)}°</span>
+      <span className="text-blue-500">{min.toFixed(1)}°</span>
       <span className="mx-1">/</span>
-      <span className="text-red-500">{Math.round(max)}°</span>
+      <span className="text-red-500">{max.toFixed(1)}°</span>
     </div>
   )
 }

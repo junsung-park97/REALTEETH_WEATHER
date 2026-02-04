@@ -24,7 +24,7 @@ const HourlyItem = ({ forecast }: { forecast: HourlyForecastType }) => {
         precipitation={weather.precipitation}
         size="sm"
       />
-      <span className="text-sm font-medium">{Math.round(weather.temperature)}°</span>
+      <span className="text-sm font-medium">{weather.temperature.toFixed(1)}°</span>
       {weather.precipitationProbability > 0 && (
         <span className="text-xs text-blue-500">
           {weather.precipitationProbability}%
