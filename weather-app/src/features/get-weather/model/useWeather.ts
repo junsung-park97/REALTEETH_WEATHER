@@ -57,13 +57,12 @@ const parseFcstData = (items: KmaForecastItem[]): {
   let maxTemp: number | null = null
   let currentSky: SkyCondition = 'clear'
 
+  // KST 기준 현재 시간 계산
   const now = new Date()
-  const currentHour = `${String(now.getHours()).padStart(2, '0')}00`
-
-  // KST 기준 오늘 날짜 (YYYYMMDD 형식)
   const kstOffset = 9 * 60 * 60 * 1000
   const kstNow = new Date(now.getTime() + kstOffset)
   const todayKst = kstNow.toISOString().slice(0, 10).replace(/-/g, '')
+  const kstCurrentHour = `${String(kstNow.getUTCHours()).padStart(2, '0')}00`
 
   for (const item of items) {
     const key = `${item.fcstDate}-${item.fcstTime}`
@@ -80,7 +79,7 @@ const parseFcstData = (items: KmaForecastItem[]): {
         break
       case 'SKY':
         weather.sky = SKY_MAP[item.fcstValue] as SkyCondition ?? 'clear'
-        if (item.fcstTime === currentHour) {
+        if (item.fcstDate === todayKst && item.fcstTime === kstCurrentHour) {
           currentSky = weather.sky
         }
         break
