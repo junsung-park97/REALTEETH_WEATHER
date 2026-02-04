@@ -20,7 +20,7 @@ export const parseDistrict = (district: string): ParsedDistrict => {
   return {
     level1: parts[0] || '',
     level2: parts[1] || '',
-    level3: parts[2] || '',
+    level3: parts.slice(2).join('-'),
     raw: district,
   }
 }
