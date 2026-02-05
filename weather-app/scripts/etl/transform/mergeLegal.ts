@@ -70,8 +70,14 @@ const detectProvinceCode = (features: GeoJSONFeature[]): string | null => {
   }
 
   if (codes.size > 1) {
-    console.warn(`⚠️ 여러 시도 코드가 감지됨: ${Array.from(codes).join(', ')}`)
-    console.warn('  --province 옵션으로 특정 시도를 지정하세요.')
+    const codeList = Array.from(codes).sort().join(', ')
+    console.error(`❌ 입력 파일에 여러 시도 코드가 포함되어 있습니다: [${codeList}]`)
+    console.error('   이 파일은 혼합된 시도 데이터를 포함하고 있어 자동 감지가 불가능합니다.')
+    console.error('   --province 옵션으로 특정 시도 코드를 명시적으로 지정하세요.')
+    console.error('')
+    console.error('   사용법: npx tsx scripts/etl/mergeLegal.ts <file> --province <code>')
+    console.error(`   예시: npx tsx scripts/etl/mergeLegal.ts <file> --province ${Array.from(codes)[0]}`)
+    process.exit(1)
   }
 
   return Array.from(codes)[0]
