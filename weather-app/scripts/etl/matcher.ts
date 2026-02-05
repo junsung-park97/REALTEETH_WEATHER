@@ -120,6 +120,64 @@ const findByBaseDisambiguation = (
 }
 
 /**
+ * "가"로 끝나는 지명에 "동" 접미사 추가 변환 시도
+ * 예: "남문로1가" → "남문로1가동"
+ */
+const tryGaSuffix = (name: string): string | null => {
+  // "가"로 끝나고 그 앞에 숫자가 있는 경우 (예: "남문로1가", "종로3가")
+  if (/[0-9]가$/.test(name)) {
+    return name + '동'
+  }
+  return null
+}
+
+/**
+ * 리(里) 단위 여부 확인
+ * "리"로 끝나는 지명은 Level 4로 간주
+ * 예: "관정리", "낭성면-관정리"
+ */
+const isRi = (name: string): boolean => {
+  return name.endsWith('리')
+}
+
+/**
+ * Level 4 (리)에서 상위 읍/면 추출
+ *
+ * korea_districts.json에서 리 단위는 두 가지 형태가 있을 수 있습니다:
+ * 1. raw: "충청북도-보은군-속리산면-삼가리" → level3: "삼가리" (parts[3]에 리가 있음)
+ * 2. raw: "충청북도-청주시상당구-낭성면-관정리" → level3: "낭성면-관정리" (level3가 "읍면-리" 형태)
+ *
+ * 이 함수는 raw 문자열에서 상위 읍/면을 추출합니다.
+ */
+const extractParentEupMyeon = (raw: string, level3: string): string | null => {
+  if (!isRi(level3)) return null
+
+  const parts = raw.split('-')
+
+  // Case 1: level3가 "읍면-리" 형태 (예: "낭성면-관정리")
+  // 이 경우 level3에서 직접 읍/면 추출
+  if (level3.includes('-')) {
+    const level3Parts = level3.split('-')
+    const potentialEupMyeon = level3Parts[0]
+    if (potentialEupMyeon && (potentialEupMyeon.endsWith('읍') || potentialEupMyeon.endsWith('면'))) {
+      return potentialEupMyeon
+    }
+  }
+
+  // Case 2: raw에서 추출 - 구조: 시도-시군구-읍면-리
+  // raw: "충청북도-보은군-속리산면-삼가리"
+  // parts[2] = "속리산면"
+  if (parts.length >= 4) {
+    const eupMyeon = parts[2] // 읍/면
+    if (eupMyeon && (eupMyeon.endsWith('읍') || eupMyeon.endsWith('면'))) {
+      return eupMyeon
+    }
+  }
+
+  return null
+}
+
+/**
  * 읍/면/동 Feature 찾기
  */
 const findSubmunicipalityFeature = (
@@ -145,7 +203,22 @@ const findSubmunicipalityFeature = (
     return null
   }
 
-  // 2. 정확 매칭이 없으면 숫자 제거 후 매칭 시도 (예: "역삼1동" vs "역삼동")
+  // 2. "가" 접미사 변환 시도 (예: "남문로1가" → "남문로1가동")
+  const gaVariant = tryGaSuffix(level3)
+  if (gaVariant) {
+    const gaMatches = submunicipalities.features.filter(
+      (f) => f.properties.name === gaVariant
+    )
+    if (gaMatches.length === 1) {
+      return gaMatches[0]
+    }
+    if (gaMatches.length > 1) {
+      const match = findByBaseDisambiguation(gaMatches, level1, level2)
+      if (match) return match
+    }
+  }
+
+  // 3. 정확 매칭이 없으면 숫자 제거 후 매칭 시도 (예: "역삼1동" vs "역삼동")
   const level3Stripped = level3.replace(/[0-9]/g, '')
   const strippedCandidates = submunicipalities.features.filter((f) => {
     const name = f.properties.name
@@ -167,7 +240,7 @@ const findSubmunicipalityFeature = (
  * 행정구역을 GeoJSON Feature와 매칭합니다.
  */
 export const matchDistrict = (parsed: ParsedDistrict, geoData: GeoJSONData): MatchResult => {
-  const { level1, level2, level3 } = parsed
+  const { level1, level2, level3, raw } = parsed
 
   // level3가 있으면 읍/면/동에서 찾기
   if (level3) {
@@ -179,6 +252,25 @@ export const matchDistrict = (parsed: ParsedDistrict, geoData: GeoJSONData): Mat
     )
     if (feature) {
       return { feature, code: feature.properties.code, matchType: 'exact' }
+    }
+
+    // Level 4 (리) 폴백: 상위 읍/면에서 찾기
+    // 예: "충청북도-보은군-속리산면-삼가리" → "속리산면"으로 폴백
+    const parentEupMyeon = extractParentEupMyeon(raw, level3)
+    if (parentEupMyeon) {
+      const parentFeature = findSubmunicipalityFeature(
+        geoData.submunicipalities,
+        level1,
+        level2,
+        parentEupMyeon
+      )
+      if (parentFeature) {
+        return {
+          feature: parentFeature,
+          code: parentFeature.properties.code,
+          matchType: 'parent',
+        }
+      }
     }
 
     // 읍/면/동에서 못 찾으면 시/군/구에서 찾기 (fallback)
