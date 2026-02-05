@@ -87,6 +87,8 @@ interface ProcessResult {
   matchedCount: number
   unmatchedCount: number
   unmatchedSamples: string[]
+  droppedCount: number
+  droppedSamples: string[]
 }
 
 /**
@@ -206,7 +208,9 @@ const processProvince = (
   const transformedFeatures: GeoJSONFeature[] = []
   let matchedCount = 0
   let unmatchedCount = 0
+  let droppedCount = 0
   const unmatchedSamples: string[] = []
+  const droppedSamples: string[] = []
 
   for (const feature of gdalData.features) {
     const result = transformAndValidate(feature, districtPatterns)
@@ -222,6 +226,14 @@ const processProvince = (
           unmatchedSamples.push(result.pattern)
         }
       }
+    } else {
+      // Feature 생성 실패 (EMD_CD/EMD_NM 누락 또는 SGG 정보 없음)
+      droppedCount++
+      if (droppedSamples.length < 5) {
+        const identifier = result.pattern || 
+          `[EMPTY] ${feature.properties.EMD_CD || 'NO_CODE'}`
+        droppedSamples.push(identifier)
+      }
     }
   }
 
@@ -231,6 +243,10 @@ const processProvince = (
 
   if (unmatchedSamples.length > 0) {
     console.log(`      미매칭 샘플: ${unmatchedSamples.slice(0, 3).join(', ')}`)
+  }
+
+  if (droppedCount > 0) {
+    console.log(`      ⚠️  드롭: ${droppedCount}개 (샘플: ${droppedSamples.slice(0, 3).join(', ')})`)
   }
 
   // 변환된 파일 저장
@@ -251,6 +267,8 @@ const processProvince = (
     matchedCount,
     unmatchedCount,
     unmatchedSamples,
+    droppedCount,
+    droppedSamples,
   }
 }
 
@@ -393,22 +411,30 @@ const main = async () => {
   let totalOutput = 0
   let totalMatched = 0
   let totalUnmatched = 0
+  let totalDropped = 0
 
   for (const result of results) {
     totalInput += result.inputCount
     totalOutput += result.outputCount
     totalMatched += result.matchedCount
     totalUnmatched += result.unmatchedCount
+    totalDropped += result.droppedCount
 
     const resultTotal = result.matchedCount + result.unmatchedCount
     const rate = resultTotal === 0 ? '0.0' : ((result.matchedCount / resultTotal) * 100).toFixed(1)
-    console.log(`  ${result.provinceName.padEnd(10)} : ${result.outputCount}개 (${rate}%)`)
+    const droppedInfo = result.droppedCount > 0 ? ` [드롭: ${result.droppedCount}]` : ''
+    console.log(`  ${result.provinceName.padEnd(10)} : ${result.outputCount}개 (${rate}%)${droppedInfo}`)
   }
 
   console.log('-'.repeat(50))
   const overallTotal = totalMatched + totalUnmatched
   const totalRate = overallTotal === 0 ? '0.0' : ((totalMatched / overallTotal) * 100).toFixed(1)
   console.log(`  전체         : ${totalOutput}개 (매칭률: ${totalRate}%)`)
+  
+  if (totalDropped > 0) {
+    console.log(`  ⚠️  총 드롭   : ${totalDropped}개`)
+  }
+  
   console.log('')
 
   if (!dryRun) {
