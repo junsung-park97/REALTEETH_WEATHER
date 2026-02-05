@@ -111,6 +111,43 @@ const mergeSubmunicipalities = (
 
   console.log(`  - 시도 코드 ${provinceCode} 제거: ${removedCount}개`)
 
+  // 새 법정동 데이터 검증
+  console.log(`\n🔍 새 법정동 데이터 검증 중...`)
+  const invalidFeatures: Array<{ code: string; expected: string; index: number }> = []
+  
+  for (let i = 0; i < newFeatures.length; i++) {
+    const feature = newFeatures[i]
+    const featureProvinceCode = getProvinceCodeFromFeature(feature)
+    
+    if (featureProvinceCode !== provinceCode) {
+      invalidFeatures.push({
+        code: featureProvinceCode,
+        expected: provinceCode,
+        index: i,
+      })
+    }
+  }
+
+  if (invalidFeatures.length > 0) {
+    console.error(`\n❌ 검증 실패: 잘못된 시도 코드를 가진 Feature가 발견되었습니다.`)
+    console.error(`   예상 시도 코드: ${provinceCode}`)
+    console.error(`   잘못된 Feature 수: ${invalidFeatures.length}개 / ${newFeatures.length}개`)
+    console.error(`\n   샘플 (최대 5개):`)
+    
+    invalidFeatures.slice(0, 5).forEach((invalid) => {
+      const feature = newFeatures[invalid.index]
+      const featureCode = feature.properties.code || 'NO_CODE'
+      const featureName = feature.properties.name || 'NO_NAME'
+      console.error(`     - [${invalid.index}] code=${featureCode} (시도: ${invalid.code}, 예상: ${invalid.expected}) name="${featureName}"`)
+    })
+    
+    console.error(`\n   입력 파일이 잘못된 시도의 데이터를 포함하고 있습니다.`)
+    console.error(`   올바른 시도 코드(${provinceCode})의 데이터만 포함된 파일을 사용하세요.`)
+    process.exit(1)
+  }
+
+  console.log(`  ✅ 모든 Feature가 시도 코드 ${provinceCode}와 일치합니다.`)
+
   // 새 법정동 데이터 추가
   const mergedFeatures = [...filteredFeatures, ...newFeatures]
   const addedCount = newFeatures.length
