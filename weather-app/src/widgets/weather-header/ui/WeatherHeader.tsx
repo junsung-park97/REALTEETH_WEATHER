@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { AlertCircle } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
-import { Alert, AlertDescription } from '@/shared/ui'
+import { Alert, AlertDescription, Card, CardContent } from '@/shared/ui'
 import { LocationSearchInput } from '@/features/search-location'
 import {
   useCurrentLocation,
   useWeather,
   CurrentWeather,
   CurrentWeatherSkeleton,
+  HourlyForecast,
+  HourlyForecastSkeleton,
 } from '@/features/get-weather'
 import { AddFavoriteButton } from '@/features/manage-favorites'
 import type { Location } from '@/entities/location'
@@ -31,6 +33,7 @@ export const WeatherHeader = ({ className }: WeatherHeaderProps) => {
 
   const {
     current: weather,
+    hourly,
     minTemp,
     maxTemp,
     isLoading: isWeatherLoading,
@@ -95,17 +98,35 @@ export const WeatherHeader = ({ className }: WeatherHeaderProps) => {
         </Alert>
       )}
 
-      {isLoading && <CurrentWeatherSkeleton />}
+      {isLoading && (
+        <>
+          <CurrentWeatherSkeleton />
+          <Card>
+            <CardContent className="pt-4">
+              <HourlyForecastSkeleton />
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       {!isLoading && weather && activeLocation && (
-        <CurrentWeather
-          weather={weather}
-          locationName={activeLocation.fullName}
-          minTemp={minTemp}
-          maxTemp={maxTemp}
-          onRefresh={handleRefresh}
-          isRefreshing={isLoading}
-        />
+        <>
+          <CurrentWeather
+            weather={weather}
+            locationName={activeLocation.fullName}
+            minTemp={minTemp}
+            maxTemp={maxTemp}
+            onRefresh={handleRefresh}
+            isRefreshing={isLoading}
+          />
+          {hourly.length > 0 && (
+            <Card>
+              <CardContent className="pt-4">
+                <HourlyForecast forecasts={hourly} />
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
     </div>
   )
