@@ -255,27 +255,59 @@ const processProvince = (
 }
 
 /**
- * submunicipalities.json 전체 교체
+ * submunicipalities.json 전체 교체 또는 병합
  */
-const replaceSubmunicipalities = (results: ProcessResult[], dryRun: boolean): void => {
-  console.log('\n📦 submunicipalities.json 생성 중...')
+const replaceSubmunicipalities = (
+  results: ProcessResult[], 
+  dryRun: boolean, 
+  isPartialUpdate: boolean
+): void => {
+  console.log(
+    isPartialUpdate 
+      ? '\n📦 submunicipalities.json 부분 업데이트 중...' 
+      : '\n📦 submunicipalities.json 생성 중...'
+  )
 
-  const allFeatures: GeoJSONFeature[] = []
+  // 새로 처리된 시도의 features 수집
+  const newFeatures: GeoJSONFeature[] = []
+  const processedProvinceCodes = new Set<string>()
 
   for (const result of results) {
+    processedProvinceCodes.add(result.provinceCode)
     const convertedPath = path.join(CONVERTED_DIR, `${result.provinceCode}_converted.json`)
     if (fs.existsSync(convertedPath)) {
       const data = JSON.parse(fs.readFileSync(convertedPath, 'utf-8')) as GeoJSONCollection
-      allFeatures.push(...data.features)
+      newFeatures.push(...data.features)
     }
   }
 
-  console.log(`   총 Feature 수: ${allFeatures.length}개`)
+  let finalFeatures: GeoJSONFeature[] = []
+
+  if (isPartialUpdate && fs.existsSync(SUBMUNICIPALITIES_PATH)) {
+    // 부분 업데이트: 기존 파일 읽기 → 처리된 시도 제외 → 새 데이터 병합
+    const existing = JSON.parse(fs.readFileSync(SUBMUNICIPALITIES_PATH, 'utf-8')) as GeoJSONCollection
+    
+    // 기존 features 중 처리되지 않은 시도만 유지
+    const remainingFeatures = existing.features.filter((feature) => {
+      const code = feature.properties.code as string
+      const provinceCode = code.substring(0, 2)
+      return !processedProvinceCodes.has(provinceCode)
+    })
+
+    finalFeatures = [...remainingFeatures, ...newFeatures]
+    console.log(`   기존 유지: ${remainingFeatures.length}개`)
+    console.log(`   새로 추가: ${newFeatures.length}개`)
+  } else {
+    // 전체 교체
+    finalFeatures = newFeatures
+  }
+
+  console.log(`   총 Feature 수: ${finalFeatures.length}개`)
 
   if (!dryRun) {
     const output: GeoJSONCollection = {
       type: 'FeatureCollection',
-      features: allFeatures,
+      features: finalFeatures,
     }
     fs.writeFileSync(SUBMUNICIPALITIES_PATH, JSON.stringify(output), 'utf-8')
     console.log(`   ✅ 저장 완료: ${SUBMUNICIPALITIES_PATH}`)
@@ -340,9 +372,16 @@ const main = async () => {
     }
   }
 
-  // submunicipalities.json 교체
+  // submunicipalities.json 교체 또는 병합
   if (results.length > 0) {
-    replaceSubmunicipalities(results, dryRun)
+    // 부분 업데이트 여부 판단: 전체 시도가 아닌 경우
+    const isPartialUpdate = provinces.length < PROVINCES.length
+    
+    if (isPartialUpdate) {
+      console.log(`\n⚠️  부분 업데이트 모드: ${provinces.length}/${PROVINCES.length}개 시도만 처리`)
+    }
+    
+    replaceSubmunicipalities(results, dryRun, isPartialUpdate)
   }
 
   // 결과 요약
