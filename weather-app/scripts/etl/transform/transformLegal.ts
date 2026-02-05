@@ -24,7 +24,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { getSggInfo, getSggInfoByEmdCode } from './sggCodeMap'
-import type { GeoJSONCollection, GeoJSONFeature, GeoJSONGeometry } from './types'
+import type { GeoJSONCollection, GeoJSONFeature, GeoJSONGeometry } from '../lib/types'
 
 // GDAL 변환 후 GeoJSON Feature 타입
 interface GdalFeature {

@@ -25,12 +25,12 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { fileURLToPath } from 'url'
-import type { GeoJSONCollection, GeoJSONFeature } from './types'
+import type { GeoJSONCollection, GeoJSONFeature } from '../lib/types'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const SUBMUNICIPALITIES_PATH = path.join(__dirname, '../data/submunicipalities.json')
+const SUBMUNICIPALITIES_PATH = path.join(__dirname, '../../data/submunicipalities.json')
 
 interface MergeOptions {
   provinceCode?: string
@@ -70,8 +70,14 @@ const detectProvinceCode = (features: GeoJSONFeature[]): string | null => {
   }
 
   if (codes.size > 1) {
-    console.warn(`⚠️ 여러 시도 코드가 감지됨: ${Array.from(codes).join(', ')}`)
-    console.warn('  --province 옵션으로 특정 시도를 지정하세요.')
+    const codeList = Array.from(codes).sort().join(', ')
+    console.error(`❌ 입력 파일에 여러 시도 코드가 포함되어 있습니다: [${codeList}]`)
+    console.error('   이 파일은 혼합된 시도 데이터를 포함하고 있어 자동 감지가 불가능합니다.')
+    console.error('   --province 옵션으로 특정 시도 코드를 명시적으로 지정하세요.')
+    console.error('')
+    console.error('   사용법: npx tsx scripts/etl/mergeLegal.ts <file> --province <code>')
+    console.error(`   예시: npx tsx scripts/etl/mergeLegal.ts <file> --province ${Array.from(codes)[0]}`)
+    process.exit(1)
   }
 
   return Array.from(codes)[0]
@@ -105,6 +111,43 @@ const mergeSubmunicipalities = (
 
   console.log(`  - 시도 코드 ${provinceCode} 제거: ${removedCount}개`)
 
+  // 새 법정동 데이터 검증
+  console.log(`\n🔍 새 법정동 데이터 검증 중...`)
+  const invalidFeatures: Array<{ code: string; expected: string; index: number }> = []
+  
+  for (let i = 0; i < newFeatures.length; i++) {
+    const feature = newFeatures[i]
+    const featureProvinceCode = getProvinceCodeFromFeature(feature)
+    
+    if (featureProvinceCode !== provinceCode) {
+      invalidFeatures.push({
+        code: featureProvinceCode,
+        expected: provinceCode,
+        index: i,
+      })
+    }
+  }
+
+  if (invalidFeatures.length > 0) {
+    console.error(`\n❌ 검증 실패: 잘못된 시도 코드를 가진 Feature가 발견되었습니다.`)
+    console.error(`   예상 시도 코드: ${provinceCode}`)
+    console.error(`   잘못된 Feature 수: ${invalidFeatures.length}개 / ${newFeatures.length}개`)
+    console.error(`\n   샘플 (최대 5개):`)
+    
+    invalidFeatures.slice(0, 5).forEach((invalid) => {
+      const feature = newFeatures[invalid.index]
+      const featureCode = feature.properties.code || 'NO_CODE'
+      const featureName = feature.properties.name || 'NO_NAME'
+      console.error(`     - [${invalid.index}] code=${featureCode} (시도: ${invalid.code}, 예상: ${invalid.expected}) name="${featureName}"`)
+    })
+    
+    console.error(`\n   입력 파일이 잘못된 시도의 데이터를 포함하고 있습니다.`)
+    console.error(`   올바른 시도 코드(${provinceCode})의 데이터만 포함된 파일을 사용하세요.`)
+    process.exit(1)
+  }
+
+  console.log(`  ✅ 모든 Feature가 시도 코드 ${provinceCode}와 일치합니다.`)
+
   // 새 법정동 데이터 추가
   const mergedFeatures = [...filteredFeatures, ...newFeatures]
   const addedCount = newFeatures.length
@@ -136,7 +179,14 @@ const mergeSubmunicipalities = (
 }
 
 /**
- * 시도 코드 → 시도명 매핑
+ * 시도 코드 → 시도명 매핑 (로깅/표시 전용)
+ * 
+ * 주의: 레거시 코드(42, 45)와 새 SHP 코드(51, 52)를 모두 포함합니다.
+ * - 42 (레거시) → 강원특별자치도 (현재 SHP: 51)
+ * - 45 (레거시) → 전북특별자치도 (현재 SHP: 52)
+ * 
+ * 실제 ETL 처리는 runFullPipeline.ts::PROVINCES를 사용하며,
+ * SHP 코드(51, 52)만 포함합니다. 이 맵은 로그 메시지 생성 용도로만 사용됩니다.
  */
 const PROVINCE_NAMES: Record<string, string> = {
   '11': '서울특별시',
@@ -148,14 +198,16 @@ const PROVINCE_NAMES: Record<string, string> = {
   '31': '울산광역시',
   '36': '세종특별자치시',
   '41': '경기도',
-  '42': '강원특별자치도',
+  '42': '강원특별자치도', // 기존 코드 (호환성)
   '43': '충청북도',
   '44': '충청남도',
-  '45': '전북특별자치도',
+  '45': '전북특별자치도', // 기존 코드 (호환성)
   '46': '전라남도',
   '47': '경상북도',
   '48': '경상남도',
   '50': '제주특별자치도',
+  '51': '강원특별자치도', // 새 코드 (SHP 기준)
+  '52': '전북특별자치도', // 새 코드 (SHP 기준)
 }
 
 /**

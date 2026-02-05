@@ -89,7 +89,7 @@ const findMunicipalityFeature = (
     return base === level1 || normalizedBase === normalizedLevel1
   })
 
-  return match || candidates[0]
+  return match || null
 }
 
 /**
