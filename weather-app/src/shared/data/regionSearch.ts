@@ -5,17 +5,19 @@ const regions: Region[] = regionsData.regions
 
 /**
  * 행정구역명으로 검색 (자동완성용)
+ * 띄어쓰기를 무시하고 검색합니다.
  */
 export const searchRegions = (query: string, limit = 10): Region[] => {
   if (!query.trim()) return []
 
-  const normalizedQuery = query.trim().toLowerCase()
+  // 띄어쓰기 제거 후 비교
+  const normalizedQuery = query.trim().toLowerCase().replace(/\s+/g, '')
 
   return regions
     .filter((region) => {
       const fullName = [region.level1, region.level2, region.level3]
         .filter(Boolean)
-        .join(' ')
+        .join('')
         .toLowerCase()
 
       return fullName.includes(normalizedQuery)

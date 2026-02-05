@@ -62,11 +62,6 @@ export const CurrentWeather = ({
           pop={weather.precipitationProbability}
         />
       </WeatherDisplay>
-      <Card>
-        <CardContent className="pt-4">
-          {/* <HourlyForecast forecasts={hourly} /> */}
-        </CardContent>
-      </Card>
     </div>
   );
 };
