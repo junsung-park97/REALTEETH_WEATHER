@@ -10,7 +10,7 @@ const regions: Region[] = regionsData.regions
 export const searchRegions = (query: string, limit = 10): Region[] => {
   if (!query.trim()) return []
 
-  // 띄어쓰기 제거 후 비교
+  // 띄어쓰기 제거 후 비교 (양쪽 모두 동일한 정규화 적용)
   const normalizedQuery = query.trim().toLowerCase().replace(/\s+/g, '')
 
   return regions
@@ -18,6 +18,7 @@ export const searchRegions = (query: string, limit = 10): Region[] => {
       const fullName = [region.level1, region.level2, region.level3]
         .filter(Boolean)
         .join('')
+        .replace(/\s+/g, '')  // 공백 제거 (쿼리와 동일한 정규화)
         .toLowerCase()
 
       return fullName.includes(normalizedQuery)
