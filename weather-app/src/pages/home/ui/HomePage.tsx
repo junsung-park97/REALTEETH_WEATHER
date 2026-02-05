@@ -1,6 +1,6 @@
-import { WeatherHeader } from '@/widgets/weather-header'
-import { FavoritesList } from '@/widgets/favorites-list'
-import { ThemeToggle } from '@/features/theme-toggle'
+import { WeatherHeader } from "@/widgets/weather-header";
+import { FavoritesList } from "@/widgets/favorites-list";
+import { ThemeToggle } from "@/features/theme-toggle";
 
 export const HomePage = () => {
   return (
@@ -18,5 +18,5 @@ export const HomePage = () => {
         </main>
       </div>
     </div>
-  )
-}
+  );
+};
