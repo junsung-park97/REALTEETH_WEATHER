@@ -1,17 +1,18 @@
-import { MapPin, RefreshCw } from 'lucide-react'
-import { cn } from '@/shared/lib/utils'
-import { Button } from '@/shared/ui'
-import { WeatherDisplay } from '@/entities/weather'
-import type { Weather } from '@/entities/weather'
+import { MapPin, RefreshCw } from "lucide-react";
+import { cn } from "@/shared/lib/utils";
+import { Button, Card, CardContent } from "@/shared/ui";
+import { WeatherDisplay } from "@/entities/weather";
+import { HourlyForecast } from "@/features/get-weather";
+import type { Weather } from "@/entities/weather";
 
 interface CurrentWeatherProps {
-  weather: Weather
-  locationName: string
-  minTemp: number | null
-  maxTemp: number | null
-  onRefresh?: () => void
-  isRefreshing?: boolean
-  className?: string
+  weather: Weather;
+  locationName: string;
+  minTemp: number | null;
+  maxTemp: number | null;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
+  className?: string;
 }
 
 export const CurrentWeather = ({
@@ -24,7 +25,7 @@ export const CurrentWeather = ({
   className,
 }: CurrentWeatherProps) => {
   return (
-    <div className={cn('flex flex-col items-center gap-4', className)}>
+    <div className={cn("flex flex-col items-center gap-4", className)}>
       <div className="flex items-center gap-2 text-muted-foreground">
         <MapPin className="size-4" />
         <span className="text-sm">{locationName}</span>
@@ -36,7 +37,7 @@ export const CurrentWeather = ({
             disabled={isRefreshing}
           >
             <RefreshCw
-              className={cn('size-3', isRefreshing && 'animate-spin')}
+              className={cn("size-3", isRefreshing && "animate-spin")}
             />
           </Button>
         )}
@@ -61,6 +62,11 @@ export const CurrentWeather = ({
           pop={weather.precipitationProbability}
         />
       </WeatherDisplay>
+      <Card>
+        <CardContent className="pt-4">
+          {/* <HourlyForecast forecasts={hourly} /> */}
+        </CardContent>
+      </Card>
     </div>
-  )
-}
+  );
+};
