@@ -14,6 +14,9 @@
     "etl:download": "tsx scripts/etl/download.ts",
     "etl:generate": "tsx scripts/etl/generateRegions.ts",
     "etl:validate": "tsx scripts/etl/validate.ts",
+    "etl:transform": "tsx scripts/etl/transformLegal.ts",
+    "etl:merge": "tsx scripts/etl/mergeLegal.ts",
+    "etl:legal": "npm run etl:transform && npm run etl:merge",
     "etl:all": "npm run etl:download && npm run etl:generate && npm run etl:validate"
   },
   "dependencies": {
