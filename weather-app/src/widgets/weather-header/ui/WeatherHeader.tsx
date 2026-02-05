@@ -21,6 +21,7 @@ interface WeatherHeaderProps {
 export const WeatherHeader = ({ className }: WeatherHeaderProps) => {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const {
     location: currentLocation,
@@ -45,11 +46,16 @@ export const WeatherHeader = ({ className }: WeatherHeaderProps) => {
     setError(null)
   }
 
-  const handleRefresh = () => {
-    if (selectedLocation) {
-      setSelectedLocation(null)
-    } else {
-      refetchLocation()
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    try {
+      if (selectedLocation) {
+        setSelectedLocation(null)
+      } else {
+        await refetchLocation()
+      }
+    } finally {
+      setIsRefreshing(false)
     }
   }
 
@@ -98,7 +104,7 @@ export const WeatherHeader = ({ className }: WeatherHeaderProps) => {
         </Alert>
       )}
 
-      {isLoading && (
+      {isLoading && !weather && (
         <>
           <CurrentWeatherSkeleton />
           <Card>
@@ -109,7 +115,7 @@ export const WeatherHeader = ({ className }: WeatherHeaderProps) => {
         </>
       )}
 
-      {!isLoading && weather && activeLocation && (
+      {weather && activeLocation && (
         <>
           <CurrentWeather
             weather={weather}
@@ -117,7 +123,7 @@ export const WeatherHeader = ({ className }: WeatherHeaderProps) => {
             minTemp={minTemp}
             maxTemp={maxTemp}
             onRefresh={handleRefresh}
-            isRefreshing={isLoading}
+            isRefreshing={isRefreshing}
           />
           {hourly.length > 0 && (
             <Card>
