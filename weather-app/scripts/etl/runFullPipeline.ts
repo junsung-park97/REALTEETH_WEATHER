@@ -225,7 +225,8 @@ const processProvince = (
     }
   }
 
-  const matchRate = ((matchedCount / (matchedCount + unmatchedCount)) * 100).toFixed(1)
+  const total = matchedCount + unmatchedCount
+  const matchRate = total === 0 ? '0.0' : ((matchedCount / total) * 100).toFixed(1)
   console.log(`   3. 변환: ${transformedFeatures.length}개 (매칭률: ${matchRate}%)`)
 
   if (unmatchedSamples.length > 0) {
@@ -360,12 +361,14 @@ const main = async () => {
     totalMatched += result.matchedCount
     totalUnmatched += result.unmatchedCount
 
-    const rate = ((result.matchedCount / (result.matchedCount + result.unmatchedCount)) * 100).toFixed(1)
+    const resultTotal = result.matchedCount + result.unmatchedCount
+    const rate = resultTotal === 0 ? '0.0' : ((result.matchedCount / resultTotal) * 100).toFixed(1)
     console.log(`  ${result.provinceName.padEnd(10)} : ${result.outputCount}개 (${rate}%)`)
   }
 
   console.log('-'.repeat(50))
-  const totalRate = ((totalMatched / (totalMatched + totalUnmatched)) * 100).toFixed(1)
+  const overallTotal = totalMatched + totalUnmatched
+  const totalRate = overallTotal === 0 ? '0.0' : ((totalMatched / overallTotal) * 100).toFixed(1)
   console.log(`  전체         : ${totalOutput}개 (매칭률: ${totalRate}%)`)
   console.log('')
 
