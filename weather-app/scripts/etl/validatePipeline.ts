@@ -122,8 +122,15 @@ const loadLevel3Patterns = (): Set<string> => {
  * Feature의 전체 주소 패턴 생성
  */
 const getFeaturePattern = (feature: GeoJSONFeature): string | null => {
-  const { base, name } = feature.properties
+  const { base, name, code } = feature.properties
   if (!base || !name) return null
+
+  const provinceCode = code?.substring(0, 2) || ''
+
+  // 세종특별자치시는 단일 레벨 (base에 공백 없음)
+  if (provinceCode === '36' && !base.includes(' ')) {
+    return `${base}-${base}-${name}`
+  }
 
   // base: "충청북도 청주시상당구" → "충청북도-청주시상당구"
   const parts = base.split(' ')
@@ -188,7 +195,8 @@ const validate = (): ValidationResult => {
     const { base, name } = feature.properties
     if (!base || !name) {
       baseErrors++
-    } else if (!base.includes(' ')) {
+    } else if (!base.includes(' ') && provinceCode !== '36') {
+      // 세종특별자치시(36)는 단일 레벨이므로 공백 불필요
       baseErrors++
     }
 
