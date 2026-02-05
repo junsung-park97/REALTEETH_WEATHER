@@ -30,6 +30,7 @@ const PROVINCE_MAP: Record<string, string> = {
   '46': '전라남도',
   '47': '경상북도',
   '48': '경상남도',
+  '50': '제주특별자치도',
   '51': '강원특별자치도', // 주의: 기존 42 아님
   '52': '전북특별자치도', // 주의: 기존 45 아님
 }
@@ -309,6 +310,10 @@ const MANUAL_SGG_MAP: Record<string, { province: string; city: string }> = {
   '48870': { province: '경상남도', city: '함양군' },
   '48880': { province: '경상남도', city: '거창군' },
   '48890': { province: '경상남도', city: '합천군' },
+
+  // 제주특별자치도 (코드 50)
+  '50110': { province: '제주특별자치도', city: '제주시' },
+  '50130': { province: '제주특별자치도', city: '서귀포시' },
 
   // 강원특별자치도 (코드 51)
   '51110': { province: '강원특별자치도', city: '춘천시' },
