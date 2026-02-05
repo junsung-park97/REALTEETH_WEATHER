@@ -48,6 +48,7 @@ interface ProcessingStats {
   parentMatch: number
   failed: number
   failedItems: string[]
+  parentMatchItems: string[]
 }
 
 /**
@@ -124,6 +125,7 @@ const processDistrict = (
     return { region: null, matchType: 'none' }
   }
 
+  // 경계좌표 -> 중심좌표
   const centroid = calculateCentroid(matchResult.feature.geometry)
 
   if (!isValidKoreaCoordinate(centroid.lat, centroid.lon)) {
@@ -139,6 +141,7 @@ const processDistrict = (
     return { region: null, matchType: 'none' }
   }
 
+  // 중심좌펴 -> 격자좌표
   const grid = latLonToGrid(centroid.lat, centroid.lon)
 
   // 고유 코드 생성
@@ -184,6 +187,7 @@ const main = async (): Promise<void> => {
     parentMatch: 0,
     failed: 0,
     failedItems: [],
+    parentMatchItems: [],
   }
 
   const regions: RegionOutput[] = []
@@ -198,6 +202,7 @@ const main = async (): Promise<void> => {
         stats.matched++
       } else {
         stats.parentMatch++
+        stats.parentMatchItems.push(district)
       }
     } else {
       stats.failed++
@@ -230,6 +235,16 @@ const main = async (): Promise<void> => {
     })
     if (stats.failedItems.length > 20) {
       console.log(`   ... 외 ${stats.failedItems.length - 20}개`)
+    }
+  }
+
+  if (stats.parentMatchItems.length > 0) {
+    console.log('\n📍 상위 구역 매칭 항목:')
+    stats.parentMatchItems.slice(0, 30).forEach((item) => {
+      console.log(`   - ${item}`)
+    })
+    if (stats.parentMatchItems.length > 30) {
+      console.log(`   ... 외 ${stats.parentMatchItems.length - 30}개`)
     }
   }
 
