@@ -91,7 +91,7 @@ for code in "${!PROVINCE_DIRS[@]}"; do
 
   if [ -z "$shp_file" ]; then
     echo "⚠️  [$code] $province_name: SHP 파일 없음 (건너뜀)"
-    ((FAIL_COUNT++))
+    FAIL_COUNT=$((FAIL_COUNT + 1))
     continue
   fi
 
@@ -106,7 +106,7 @@ for code in "${!PROVINCE_DIRS[@]}"; do
     ((SUCCESS_COUNT++))
   else
     echo "❌ 변환 실패"
-    ((FAIL_COUNT++))
+    FAIL_COUNT=$((FAIL_COUNT + 1))
   fi
 done
 
