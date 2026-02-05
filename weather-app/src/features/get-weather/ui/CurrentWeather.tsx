@@ -1,8 +1,7 @@
 import { MapPin, RefreshCw } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
-import { Button, Card, CardContent } from "@/shared/ui";
+import { Button } from "@/shared/ui";
 import { WeatherDisplay } from "@/entities/weather";
-import { HourlyForecast } from "@/features/get-weather";
 import type { Weather } from "@/entities/weather";
 
 interface CurrentWeatherProps {

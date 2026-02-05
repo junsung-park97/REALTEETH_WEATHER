@@ -179,7 +179,14 @@ const mergeSubmunicipalities = (
 }
 
 /**
- * 시도 코드 → 시도명 매핑
+ * 시도 코드 → 시도명 매핑 (로깅/표시 전용)
+ * 
+ * 주의: 레거시 코드(42, 45)와 새 SHP 코드(51, 52)를 모두 포함합니다.
+ * - 42 (레거시) → 강원특별자치도 (현재 SHP: 51)
+ * - 45 (레거시) → 전북특별자치도 (현재 SHP: 52)
+ * 
+ * 실제 ETL 처리는 runFullPipeline.ts::PROVINCES를 사용하며,
+ * SHP 코드(51, 52)만 포함합니다. 이 맵은 로그 메시지 생성 용도로만 사용됩니다.
  */
 const PROVINCE_NAMES: Record<string, string> = {
   '11': '서울특별시',
