@@ -10,11 +10,19 @@ import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
+<<<<<<< HEAD
 import { parseDistrict, getDistrictLevel, type ParsedDistrict } from './parser'
 import { matchDistrict, type GeoJSONData } from './matcher'
 import { calculateCentroid, isValidKoreaCoordinate } from './centroid'
 import { latLonToGrid } from '../../src/shared/lib/gridConverter'
 import type { GeoJSONCollection } from './types'
+=======
+import { parseDistrict, getDistrictLevel, type ParsedDistrict } from './lib/parser'
+import { matchDistrict, type GeoJSONData } from './lib/matcher'
+import { calculateCentroid, isValidKoreaCoordinate } from './lib/centroid'
+import { latLonToGrid } from '../../src/shared/lib/gridConverter'
+import type { GeoJSONCollection } from './lib/types'
+>>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)

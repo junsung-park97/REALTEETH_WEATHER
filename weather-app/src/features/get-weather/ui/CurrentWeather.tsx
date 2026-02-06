@@ -1,8 +1,13 @@
 import { MapPin, RefreshCw } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
+<<<<<<< HEAD
 import { Button, Card, CardContent } from "@/shared/ui";
 import { WeatherDisplay } from "@/entities/weather";
 import { HourlyForecast } from "@/features/get-weather";
+=======
+import { Button } from "@/shared/ui";
+import { WeatherDisplay } from "@/entities/weather";
+>>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
 import type { Weather } from "@/entities/weather";
 
 interface CurrentWeatherProps {
@@ -62,11 +67,14 @@ export const CurrentWeather = ({
           pop={weather.precipitationProbability}
         />
       </WeatherDisplay>
+<<<<<<< HEAD
       <Card>
         <CardContent className="pt-4">
           {/* <HourlyForecast forecasts={hourly} /> */}
         </CardContent>
       </Card>
+=======
+>>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
     </div>
   );
 };

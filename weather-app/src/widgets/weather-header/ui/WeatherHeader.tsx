@@ -1,13 +1,22 @@
 import { useState } from 'react'
 import { AlertCircle } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
+<<<<<<< HEAD
 import { Alert, AlertDescription } from '@/shared/ui'
+=======
+import { Alert, AlertDescription, Card, CardContent } from '@/shared/ui'
+>>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
 import { LocationSearchInput } from '@/features/search-location'
 import {
   useCurrentLocation,
   useWeather,
   CurrentWeather,
   CurrentWeatherSkeleton,
+<<<<<<< HEAD
+=======
+  HourlyForecast,
+  HourlyForecastSkeleton,
+>>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
 } from '@/features/get-weather'
 import { AddFavoriteButton } from '@/features/manage-favorites'
 import type { Location } from '@/entities/location'
@@ -19,6 +28,10 @@ interface WeatherHeaderProps {
 export const WeatherHeader = ({ className }: WeatherHeaderProps) => {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null)
   const [error, setError] = useState<string | null>(null)
+<<<<<<< HEAD
+=======
+  const [isRefreshing, setIsRefreshing] = useState(false)
+>>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
 
   const {
     location: currentLocation,
@@ -31,6 +44,10 @@ export const WeatherHeader = ({ className }: WeatherHeaderProps) => {
 
   const {
     current: weather,
+<<<<<<< HEAD
+=======
+    hourly,
+>>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
     minTemp,
     maxTemp,
     isLoading: isWeatherLoading,
@@ -42,11 +59,24 @@ export const WeatherHeader = ({ className }: WeatherHeaderProps) => {
     setError(null)
   }
 
+<<<<<<< HEAD
   const handleRefresh = () => {
     if (selectedLocation) {
       setSelectedLocation(null)
     } else {
       refetchLocation()
+=======
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    try {
+      if (selectedLocation) {
+        setSelectedLocation(null)
+      } else {
+        await refetchLocation()
+      }
+    } finally {
+      setIsRefreshing(false)
+>>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
     }
   }
 
@@ -95,6 +125,7 @@ export const WeatherHeader = ({ className }: WeatherHeaderProps) => {
         </Alert>
       )}
 
+<<<<<<< HEAD
       {isLoading && <CurrentWeatherSkeleton />}
 
       {!isLoading && weather && activeLocation && (
@@ -106,6 +137,37 @@ export const WeatherHeader = ({ className }: WeatherHeaderProps) => {
           onRefresh={handleRefresh}
           isRefreshing={isLoading}
         />
+=======
+      {isLoading && !weather && (
+        <>
+          <CurrentWeatherSkeleton />
+          <Card>
+            <CardContent className="pt-4">
+              <HourlyForecastSkeleton />
+            </CardContent>
+          </Card>
+        </>
+      )}
+
+      {weather && activeLocation && (
+        <>
+          <CurrentWeather
+            weather={weather}
+            locationName={activeLocation.fullName}
+            minTemp={minTemp}
+            maxTemp={maxTemp}
+            onRefresh={handleRefresh}
+            isRefreshing={isRefreshing}
+          />
+          {hourly.length > 0 && (
+            <Card>
+              <CardContent className="pt-4">
+                <HourlyForecast forecasts={hourly} />
+              </CardContent>
+            </Card>
+          )}
+        </>
+>>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
       )}
     </div>
   )
