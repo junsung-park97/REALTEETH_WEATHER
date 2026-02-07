@@ -45,8 +45,8 @@ interface LabelProps {
 }
 
 const sizeClasses = {
-  icon: { sm: 'text-3xl', md: 'text-5xl', lg: 'text-7xl' },
-  temp: { sm: 'text-2xl', md: 'text-4xl', lg: 'text-6xl' },
+  icon: { sm: 'text-4xl', md: 'text-6xl', lg: 'text-[8rem]' },
+  temp: { sm: 'text-3xl font-bold tracking-tight', md: 'text-5xl font-bold tracking-tight', lg: 'text-8xl font-bold tracking-tighter' },
   text: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
 } as const
 
@@ -107,14 +107,26 @@ const Details = ({ humidity, windSpeed, pop, className }: DetailsProps) => {
   return (
     <div
       className={cn(
-        'flex gap-4 text-muted-foreground',
+        'flex flex-wrap justify-center gap-3',
         sizeClasses.text[size],
         className
       )}
     >
-      {humidity !== undefined && <span>💧 {humidity}%</span>}
-      {windSpeed !== undefined && <span>💨 {windSpeed}m/s</span>}
-      {pop !== undefined && pop > 0 && <span>🌧️ {pop}%</span>}
+      {humidity !== undefined && (
+        <span className="bg-blue-500/10 text-blue-600 px-3 py-1 rounded-full font-medium flex items-center gap-1.5">
+          <span className="text-lg">💧</span> {humidity}%
+        </span>
+      )}
+      {windSpeed !== undefined && (
+        <span className="bg-gray-500/10 text-gray-600 px-3 py-1 rounded-full font-medium flex items-center gap-1.5">
+          <span className="text-lg">💨</span> {windSpeed}m/s
+        </span>
+      )}
+      {pop !== undefined && pop > 0 && (
+        <span className="bg-indigo-500/10 text-indigo-600 px-3 py-1 rounded-full font-medium flex items-center gap-1.5">
+          <span className="text-lg">🌧️</span> {pop}%
+        </span>
+      )}
     </div>
   )
 }

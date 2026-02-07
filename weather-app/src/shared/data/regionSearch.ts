@@ -5,31 +5,20 @@ const regions: Region[] = regionsData.regions
 
 /**
  * 행정구역명으로 검색 (자동완성용)
-<<<<<<< HEAD
-=======
  * 띄어쓰기를 무시하고 검색합니다.
->>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
  */
 export const searchRegions = (query: string, limit = 10): Region[] => {
   if (!query.trim()) return []
 
-<<<<<<< HEAD
-  const normalizedQuery = query.trim().toLowerCase()
-=======
   // 띄어쓰기 제거 후 비교 (양쪽 모두 동일한 정규화 적용)
   const normalizedQuery = query.trim().toLowerCase().replace(/\s+/g, '')
->>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
 
   return regions
     .filter((region) => {
       const fullName = [region.level1, region.level2, region.level3]
         .filter(Boolean)
-<<<<<<< HEAD
-        .join(' ')
-=======
         .join('')
         .replace(/\s+/g, '')  // 공백 제거 (쿼리와 동일한 정규화)
->>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
         .toLowerCase()
 
       return fullName.includes(normalizedQuery)

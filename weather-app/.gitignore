@@ -12,13 +12,10 @@ dist
 dist-ssr
 *.local
 
-<<<<<<< HEAD
-=======
 # ETL generated / large data (DO NOT TRACK)
 scripts/data/CONVERTED/
 scripts/data/LSMD_ADM_SECT_*/
 
->>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
 
 # Environment variables
 .env

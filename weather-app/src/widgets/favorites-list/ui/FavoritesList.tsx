@@ -57,10 +57,12 @@ const FavoriteCardWithWeather = ({
 }
 
 const EmptyCard = () => (
-  <Card className="border-dashed py-4 transition-all duration-200 hover:border-muted-foreground/50">
-    <CardContent className="flex flex-col items-center justify-center h-full min-h-[120px] text-muted-foreground">
-      <Plus className="size-8 mb-2" />
-      <span className="text-sm">즐겨찾기 추가</span>
+  <Card className="border-dashed py-0 h-full min-h-[140px] flex items-center justify-center transition-all duration-200 hover:border-primary/50 hover:bg-accent/50 cursor-pointer">
+    <CardContent className="flex flex-col items-center justify-center p-6 text-muted-foreground gap-2">
+      <div className="bg-muted p-3 rounded-full">
+        <Plus className="size-6" />
+      </div>
+      <span className="text-sm font-medium">즐겨찾기 추가</span>
     </CardContent>
   </Card>
 )
@@ -80,9 +82,16 @@ export const FavoritesList = ({ className }: FavoritesListProps) => {
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
-      <h2 className="text-lg font-semibold px-1">즐겨찾기</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+    <div className={cn('space-y-6', className)}>
+      <div className="flex items-center justify-between px-1">
+        <h2 className="text-xl font-bold flex items-center gap-2">
+          <span className="text-yellow-500">★</span> 즐겨찾기
+        </h2>
+        <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+          {favorites.length} / 6
+        </span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {favorites.map((favorite) => (
           <FavoriteCardWithWeather
             key={favorite.id}

@@ -1,13 +1,7 @@
 import { MapPin, RefreshCw } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
-<<<<<<< HEAD
-import { Button, Card, CardContent } from "@/shared/ui";
-import { WeatherDisplay } from "@/entities/weather";
-import { HourlyForecast } from "@/features/get-weather";
-=======
 import { Button } from "@/shared/ui";
 import { WeatherDisplay } from "@/entities/weather";
->>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
 import type { Weather } from "@/entities/weather";
 
 interface CurrentWeatherProps {
@@ -30,51 +24,53 @@ export const CurrentWeather = ({
   className,
 }: CurrentWeatherProps) => {
   return (
-    <div className={cn("flex flex-col items-center gap-4", className)}>
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <MapPin className="size-4" />
-        <span className="text-sm">{locationName}</span>
+    <div className={cn('flex flex-col items-center gap-4 py-8', className)}>
+      <div className="flex items-center gap-2 text-muted-foreground bg-accent/50 px-4 py-1.5 rounded-full backdrop-blur-sm">
+        <MapPin className="size-4 text-primary" />
+        <span className="text-sm font-medium">{locationName}</span>
         {onRefresh && (
           <Button
             variant="ghost"
             size="icon-xs"
             onClick={onRefresh}
             disabled={isRefreshing}
+            className="hover:bg-accent hover:text-primary transition-colors ml-1"
           >
             <RefreshCw
-              className={cn("size-3", isRefreshing && "animate-spin")}
+              className={cn("size-3.5", isRefreshing && "animate-spin text-primary")}
             />
           </Button>
         )}
       </div>
 
-      <WeatherDisplay size="lg">
-        <WeatherDisplay.Icon
-          sky={weather.sky}
-          precipitation={weather.precipitation}
-        />
+      <WeatherDisplay size="lg" className="gap-6">
+        <div className="flex flex-col items-center">
+          <WeatherDisplay.Icon
+            sky={weather.sky}
+            precipitation={weather.precipitation}
+            className="drop-shadow-lg mb-2"
+          />
+          <WeatherDisplay.Label
+            sky={weather.sky}
+            precipitation={weather.precipitation}
+            className="text-xl font-medium text-foreground/80"
+          />
+        </div>
+        
         <WeatherDisplay.Temp value={weather.temperature} />
-        <WeatherDisplay.Label
-          sky={weather.sky}
-          precipitation={weather.precipitation}
-        />
+        
         {minTemp !== null && maxTemp !== null && (
-          <WeatherDisplay.MinMax min={minTemp} max={maxTemp} />
+          <WeatherDisplay.MinMax min={minTemp} max={maxTemp} className="text-xl font-medium" />
         )}
-        <WeatherDisplay.Details
-          humidity={weather.humidity}
-          windSpeed={weather.windSpeed}
-          pop={weather.precipitationProbability}
-        />
+        
+        <div className="mt-4 w-full">
+          <WeatherDisplay.Details
+            humidity={weather.humidity}
+            windSpeed={weather.windSpeed}
+            pop={weather.precipitationProbability}
+          />
+        </div>
       </WeatherDisplay>
-<<<<<<< HEAD
-      <Card>
-        <CardContent className="pt-4">
-          {/* <HourlyForecast forecasts={hourly} /> */}
-        </CardContent>
-      </Card>
-=======
->>>>>>> 408c40c4cc28cebc87f5a97e48884977f583249b
     </div>
   );
 };
