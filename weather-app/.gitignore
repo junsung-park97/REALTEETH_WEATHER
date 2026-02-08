@@ -16,6 +16,9 @@ dist-ssr
 scripts/data/CONVERTED/
 scripts/data/LSMD_ADM_SECT_*/
 
+# BFG Repo-Cleaner reports
+../..bfg-report
+
 
 # Environment variables
 .env
