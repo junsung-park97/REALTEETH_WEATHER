@@ -21,12 +21,14 @@ const SearchResult = ({
   <button
     type="button"
     onClick={onSelect}
-    className="flex items-center gap-3 w-full px-3 py-2 text-left hover:bg-accent transition-colors"
+    className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-accent/50 transition-all duration-200 border-b border-border/40 last:border-0"
   >
-    <MapPin className="size-4 text-muted-foreground shrink-0" />
-    <div className="flex flex-col min-w-0">
-      <span className="text-sm font-medium truncate">{location.name}</span>
-      <span className="text-xs text-muted-foreground truncate">
+    <div className="bg-primary/10 p-2 rounded-full shrink-0">
+      <MapPin className="size-4 text-primary" />
+    </div>
+    <div className="flex flex-col min-w-0 gap-0.5">
+      <span className="text-sm font-semibold text-foreground truncate">{location.name}</span>
+      <span className="text-xs text-muted-foreground truncate font-medium">
         {location.fullName}
       </span>
     </div>
@@ -79,9 +81,9 @@ export const LocationSearchInput = ({
   const showDropdown = isOpen && query.trim().length > 0
 
   return (
-    <div ref={containerRef} className={cn('relative', className)}>
+    <div ref={containerRef} className={cn('relative group', className)}>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground group-focus-within:text-primary transition-colors duration-300" />
         <Input
           ref={inputRef}
           type="text"
@@ -89,7 +91,7 @@ export const LocationSearchInput = ({
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
           placeholder={placeholder}
-          className="pl-9 pr-9"
+          className="pl-10 pr-10 h-11 rounded-xl bg-background/50 backdrop-blur-sm border-transparent focus:border-primary/20 shadow-sm transition-all duration-300"
         />
         {query && (
           <Button
@@ -108,7 +110,7 @@ export const LocationSearchInput = ({
       </div>
 
       {showDropdown && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border rounded-md shadow-lg max-h-[300px] overflow-auto animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-full left-0 right-0 z-50 mt-2 bg-popover/95 backdrop-blur-md border rounded-xl shadow-xl max-h-[320px] overflow-auto animate-in fade-in slide-in-from-top-2 duration-200">
           {results.length > 0 ? (
             results.map((location) => (
               <SearchResult
